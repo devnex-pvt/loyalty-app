@@ -205,5 +205,5 @@ Main App (Bottom Tabs):
 - **State**: Zustand
 - **Navigation**: @react-navigation (bottom-tabs + native-stack)
 - **Icons**: @expo/vector-icons (Ionicons)
-- **Storage**: @react-native-async-storage/async-storage
+- **Storage**: expo-secure-store
 - **API Client**: Axios (`apiService.js`)
