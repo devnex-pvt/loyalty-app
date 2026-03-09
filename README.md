@@ -36,31 +36,102 @@ A production-ready mobile loyalty rewards application built with **React Native 
 
 ## 🏗️ Project Architecture
 
-\`\`\`
+```text
 loyalty-app/
-├── app/                        # Expo Router routes (thin re-exports only)
-│   ├── _layout.tsx             # Root layout
-│   ├── (auth)/                 # Auth group (login, register, forgot-password)
-│   ├── (tabs)/                 # Tab group (home, rewards, wallet, referral, profile)
-│   ├── notifications.tsx
-│   └── reward-details.tsx
+│
+├── app/                              # 📍 Expo Router — file-based routing (thin re-exports only)
+│   ├── _layout.tsx                   #    Root layout: loads fonts, initialises Unistyles & Zustand
+│   ├── (auth)/                       #    Auth route group (unauthenticated users)
+│   │   ├── _layout.tsx               #      Auth stack layout
+│   │   ├── login.tsx                 #      → re-exports LoginScreen
+│   │   ├── register.tsx              #      → re-exports RegisterScreen
+│   │   └── forgot-password.tsx       #      → re-exports ForgotPasswordScreen
+│   ├── (tabs)/                       #    Tab route group (authenticated users)
+│   │   ├── _layout.tsx               #      Bottom tab navigator layout
+│   │   ├── index.tsx                 #      → re-exports HomeScreen
+│   │   ├── rewards.tsx               #      → re-exports RewardsScreen
+│   │   ├── wallet.tsx                #      → re-exports WalletScreen
+│   │   ├── referral.tsx              #      → re-exports ReferralScreen
+│   │   └── profile.tsx               #      → re-exports ProfileScreen
+│   ├── notifications.tsx             #    → re-exports NotificationsScreen
+│   └── reward-details.tsx            #    → re-exports RewardDetailsScreen
+│
 ├── src/
-│   ├── screens/                # All screen UI components (TypeScript strict)
-│   ├── components/             # Reusable UI (Button, Card, Input, Badge, Header…)
-│   ├── services/               # Business logic (auth, loyalty, rewards, wallet…)
-│   ├── api/                    # Axios domain API files (authApi, rewardsApi…)
-│   ├── store/                  # Zustand global store (useStore.ts)
-│   ├── data/                   # Static/mock data (loyaltyData.ts)
-│   └── styles/                 # Unistyles theme (theme.ts, unistyles.d.ts)
-├── android/                    # Android native project
-├── eas.json                    # EAS Build + Update profiles
-└── app.json                    # Expo config with OTA update URL
-\`\`\`
+│   ├── screens/                      # 🖥️  All screen UI components (TypeScript strict)
+│   │   ├── SplashScreen.tsx          #    App splash / loading screen
+│   │   ├── LoginScreen.tsx           #    User login form
+│   │   ├── RegisterScreen.tsx        #    User registration form
+│   │   ├── ForgotPasswordScreen.tsx  #    Password recovery
+│   │   ├── HomeScreen.tsx            #    Dashboard: points, tier, activity
+│   │   ├── RewardsScreen.tsx         #    Rewards catalog with filter/redeem
+│   │   ├── RewardDetailsScreen.tsx   #    Single reward detail & redeem CTA
+│   │   ├── WalletScreen.tsx          #    Transaction history & balance
+│   │   ├── ReferralScreen.tsx        #    Referral code, share, stats
+│   │   ├── ProfileScreen.tsx         #    User profile & settings
+│   │   └── NotificationsScreen.tsx   #    Notification feed
+│   │
+│   ├── components/                   # 🧩 Reusable UI primitives (Unistyles v3)
+│   │   ├── Button.tsx                #    Themed button with variants
+│   │   ├── Input.tsx                 #    Themed text input with validation state
+│   │   ├── Card.tsx                  #    Rounded surface container
+│   │   ├── Badge.tsx                 #    Chip/tag badge (tier, status)
+│   │   ├── Header.tsx                #    Screen header with back/title
+│   │   ├── EmptyState.tsx            #    Empty list placeholder with icon
+│   │   └── SkeletonLoader.tsx        #    Animated loading skeleton
+│   │
+│   ├── services/                     # ⚙️  Business logic — no UI, no direct API calls
+│   │   ├── apiService.ts             #    Axios instance, interceptors, token injection
+│   │   ├── authService.ts            #    Login, register, logout, token refresh
+│   │   ├── loyaltyService.ts         #    Points calculation, tier logic
+│   │   ├── rewardsService.ts         #    Fetch, filter, and redeem rewards
+│   │   ├── walletService.ts          #    Transaction fetch & balance helpers
+│   │   ├── notificationService.ts    #    Notification fetch & mark-read
+│   │   ├── referralService.ts        #    Referral code generation & stats
+│   │   └── storageService.ts         #    expo-secure-store wrapper (all persistence)
+│   │
+│   ├── api/                          # 🌐 Axios domain API files (one file per resource)
+│   │   ├── index.ts                  #    Barrel export for all API modules
+│   │   ├── authApi.ts                #    /auth endpoints
+│   │   ├── loyaltyApi.ts             #    /loyalty endpoints
+│   │   ├── rewardsApi.ts             #    /rewards endpoints
+│   │   ├── walletApi.ts              #    /wallet endpoints
+│   │   ├── notificationsApi.ts       #    /notifications endpoints
+│   │   └── referralApi.ts            #    /referral endpoints
+│   │
+│   ├── store/                        # 🗂️  Global state (Zustand v5)
+│   │   └── useStore.ts               #    Single store: auth, points, user, notifications
+│   │
+│   ├── data/                         # 📊 Static & mock data
+│   │   └── loyaltyData.ts            #    Typed mock responses (used until backend is live)
+│   │
+│   └── styles/                       # 🎨 Design system (Unistyles v3)
+│       ├── theme.ts                  #    Colours, spacing, typography, breakpoints
+│       └── unistyles.d.ts            #    Type augmentation for useStyles() auto-complete
+│
+├── android/                          # 🤖 Android native project (do not edit manually)
+│   └── app/
+│       ├── build.gradle              #    ABI splits, minify, resource shrinking
+│       ├── proguard-rules.pro        #    Keep rules for RN, Expo, Unistyles, OkHttp
+│       └── src/main/AndroidManifest.xml
+│
+├── assets/                           # 🖼️  Static assets (icons, splash)
+├── eas.json                          # ☁️  EAS Build & Update profiles
+├── app.json                          # ⚙️  Expo config (bundle ID, OTA update URL)
+├── babel.config.js                   #    Babel: expo preset + Unistyles plugin
+├── metro.config.js                   #    Metro: SVG + Unistyles resolver
+└── tsconfig.json                     #    TypeScript strict mode
+```
 
-**Key principles:**
-- **Strict separation of concerns** — screens only handle UI, all logic in `services/`
-- **Easy backend switch** — change `BASE_URL` in `src/services/apiService.ts`
-- **File-based routing** — each `app/` route file is a one-line re-export of a `src/screens/` component
+### Key Principles
+
+| Principle | Detail |
+|---|---|
+| **Strict separation of concerns** | Screens handle UI only — all business logic lives in `src/services/` |
+| **Thin route files** | Every file in `app/` is a single-line re-export of a `src/screens/` component |
+| **Secure-first persistence** | `expo-secure-store` is used for **all** storage — no AsyncStorage, no plain localStorage |
+| **Easy backend switch** | Set `BASE_URL` in `src/services/apiService.ts` — all domain API files update automatically |
+| **OTA-first release** | JS/UI changes are shipped in ~2 min via `eas update`, no 2-hour rebuild required |
+| **Minimal APK size** | ABI splits + ProGuard minify + resource shrinking keeps the arm64 APK to ~40–50 MB |
 
 ---
 
